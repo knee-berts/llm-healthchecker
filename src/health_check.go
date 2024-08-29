@@ -16,10 +16,10 @@ func main() {
 		metricsEndpoint = "http://localhost:8080/metrics" // Fallback to default
 	}
 
-	queueDepthThresholdStr := os.Getenv("QUEUE_DEPTH_THRESHOLD")
-	queueDepthThreshold, err := strconv.Atoi(queueDepthThresholdStr)
-	if err != nil || queueDepthThreshold == 0 {
-		queueDepthThreshold = 10 // Fallback to default
+	metricThresholdStr := os.Getenv("METRIC_THRESHOLD")
+	metricThreshold, err := strconv.Atoi(metricThresholdStr)
+	if err != nil || metricThreshold == 0 {
+		metricThreshold = 10 // Fallback to default
 	}
 
 	appPortStr := os.Getenv("APP_PORT")
@@ -34,12 +34,12 @@ func main() {
 	}
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		healthCheckHandler(w, r, metricsEndpoint, queueDepthThreshold, metricToCheck)
+		healthCheckHandler(w, r, metricsEndpoint, metricThreshold, metricToCheck)
 	})
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", appPort), nil))
 }
 
-func healthCheckHandler(w http.ResponseWriter, r *http.Request, metricsEndpoint string, queueDepthThreshold int, metricToCheck string) {
+func healthCheckHandler(w http.ResponseWriter, r *http.Request, metricsEndpoint string, metricThreshold int, metricToCheck string) {
 	resp, err := http.Get(metricsEndpoint)
 	if err != nil {
 		log.Println("Error fetching metrics:", err)
@@ -70,8 +70,9 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request, metricsEndpoint 
 		return
 	}
 
-	// Compare against the configured threshold (assuming the metric represents a queue depth)
-	if metricValue <= queueDepthThreshold {
+	// Compare against the configured threshold
+	// You might need to adjust this logic based on the specific metric you're checking
+	if metricValue <= metricThreshold {
 		fmt.Fprintln(w, "Healthy")
 	} else {
 		http.Error(w, "Unhealthy", http.StatusServiceUnavailable)
