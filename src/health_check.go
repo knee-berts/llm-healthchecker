@@ -55,7 +55,7 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request, metricsEndpoint 
 		return
 	}
 
-	// Use the extractMetricValue function (generalized)
+	// Use the extractMetricValue function
 	metricValue, err := extractMetricValue(string(body), metricToCheck)
 	if err != nil {
 		log.Println("Error extracting metric value:", err)
