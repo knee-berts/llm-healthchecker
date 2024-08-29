@@ -19,7 +19,7 @@ func main() {
 	metricThresholdStr := os.Getenv("METRIC_THRESHOLD")
 	metricThreshold, err := strconv.Atoi(metricThresholdStr)
 	if err != nil || metricThreshold == 0 {
-		metricThreshold = 10 // Fallback to default
+		metricThreshold = 15 // Fallback to default
 	}
 
 	appPortStr := os.Getenv("APP_PORT")
