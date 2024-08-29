@@ -29,22 +29,20 @@ func TestHealthCheckHandler(t *testing.T) {
 	// Record the response using a ResponseRecorder
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		healthCheckHandler(w, r, server.URL, 10) // Use the mock server URL and threshold
+		healthCheckHandler(w, r, server.URL, 10, "tgi_queue_size") // Use the mock server URL, threshold, and metric name
 	})
 
 	handler.ServeHTTP(rr, req)
 
 	// Check the status code
 	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	// Check the response body    1.  stackoverflow.com stackoverflow.com
+	// Check the response body
 	expected := "Healthy\n"
 	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			rr.Body.String(), expected)
+		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
 	}
 
 	// Test with an unhealthy queue depth
@@ -65,19 +63,17 @@ func TestHealthCheckHandler(t *testing.T) {
 	}
 	rr = httptest.NewRecorder()
 	handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		healthCheckHandler(w, r, server.URL, 10)
+		healthCheckHandler(w, r, server.URL, 10, "tgi_queue_size")
 	})
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusServiceUnavailable {
-		t.Errorf("handler returned wrong status code for unhealthy queue: got %v want %v",
-			status, http.StatusServiceUnavailable)
+		t.Errorf("handler returned wrong status code for unhealthy queue: got %v want %v", status, http.StatusServiceUnavailable)
 	}
 
 	expected = "Unhealthy\n"
 	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body for unhealthy queue: got %v want %v",
-			rr.Body.String(), expected)
+		t.Errorf("handler returned unexpected body for unhealthy queue: got %v want %v", rr.Body.String(), expected)
 	}
 
 	// Test with null metrics response
@@ -92,18 +88,16 @@ func TestHealthCheckHandler(t *testing.T) {
 	}
 	rr = httptest.NewRecorder()
 	handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		healthCheckHandler(w, r, server.URL, 10)
+		healthCheckHandler(w, r, server.URL, 10, "tgi_queue_size")
 	})
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code for null metrics: got %v want %v",
-			status, http.StatusOK)
+		t.Errorf("handler returned wrong status code for null metrics: got %v want %v", status, http.StatusOK)
 	}
 
-	expected = "Healthy\n" // Adjust if you have different behavior for null metrics
+	expected = "Healthy\n"
 	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body for null metrics: got %v want %v",
-			rr.Body.String(), expected)
+		t.Errorf("handler returned unexpected body for null metrics: got %v want %v", rr.Body.String(), expected)
 	}
 }
