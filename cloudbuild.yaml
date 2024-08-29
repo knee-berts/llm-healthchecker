@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'us-docker.pkg.dev/fleet-dev-1/llm-healthcheck/llm-healthcheck-v0.0.9', '.']
+  args: ['build', '-t', 'us-docker.pkg.dev/fleet-dev-1/llm-healthcheck/llm-healthcheck-v0.0.10', '.']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'us-docker.pkg.dev/fleet-dev-1/llm-healthcheck/llm-healthcheck-v0.0.9']
-images: ['us-docker.pkg.dev/fleet-dev-1/llm-healthcheck/llm-healthcheck-v0.0.9']
+  args: ['push', 'us-docker.pkg.dev/fleet-dev-1/llm-healthcheck/llm-healthcheck-v0.0.10']
+images: ['us-docker.pkg.dev/fleet-dev-1/llm-healthcheck/llm-healthcheck-v0.0.10']

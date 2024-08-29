@@ -70,11 +70,14 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request, metricsEndpoint 
 		return
 	}
 
-	// Compare against the configured threshold
-	// You might need to adjust this logic based on the specific metric you're checking
+	// Log the metric value and the threshold
+	log.Printf("Health check: %s = %d (threshold = %d)\n", metricToCheck, metricValue, metricThreshold)
+
 	if metricValue <= metricThreshold {
+		log.Println("Health check: Healthy")
 		fmt.Fprintln(w, "Healthy")
 	} else {
+		log.Println("Health check: Unhealthy")
 		http.Error(w, "Unhealthy", http.StatusServiceUnavailable)
 	}
 }
