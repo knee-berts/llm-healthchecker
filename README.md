@@ -1,10 +1,16 @@
-# LLM Healthchecker
-This simple Go application acts as a health checker for an LLM (Large Language Model) inference server. It periodically fetches metrics from the inference server's metrics endpoint and checks if a specific metric value is within an acceptable threshold. This helps ensure the LLM service is running smoothly and responding to requests within expected parameters.
+# LLM Healthchecker - Simulating Inference Server Capacity
+This Go application serves as a health checker for LLM (Large Language Model) inference servers, with a specific focus on simulating capacity overload. It achieves this by monitoring the queue depth of incoming requests on the inference server.  When the queue depth exceeds a predefined threshold, the health checker signals an "unhealthy" status, triggering Kubernetes to remove the pod from the service's endpoints. This simulation helps demonstrate how the GKE multi-cluster gateway can intelligently route traffic to inference servers in multiple regions, ensuring optimal performance and high availability even under heavy load.
+
+## Context
+
+- **Hugging Face's efficiency:** Hugging Face's inference servers are highly efficient, continually accepting requests and queuing them locally for processing.
+- **Capacity simulation:** This health checker allows us to artificially create a "full" scenario by monitoring the queue depth. If the queue grows beyond a certain limit, we consider the pod "full" and trigger its removal from the service endpoints.
+- **Multi-cluster gateway demonstration:** This behavior showcases how the GKE multi-cluster gateway can seamlessly redirect traffic to inference servers in other regions when one region's capacity is saturated.
 
 ## Features
-- Flexible metric checking: You can configure the metric to monitor and its threshold using environment variables.
-- Handles null metrics: Gracefully handles cases where the metrics endpoint returns null or an empty response, indicating that the LLM service hasn't processed any requests yet.
-- Exposes a `/health` endpoint: Provides a `/health` endpoint that Kubernetes or other systems can use for readiness probes.
+- **Flexible metric checking:** You can configure the metric to monitor and its threshold using environment variables.
+- **Handles null metrics:** Gracefully handles cases where the metrics endpoint returns null or an empty response, indicating that the LLM service hasn't processed any requests yet.
+- **Exposes a `/health` endpoint:** Provides a `/health` endpoint that Kubernetes or other systems can use for readiness probes.
 
 ## How to Use
 1. Build the application:
@@ -35,7 +41,7 @@ You can now access the health check status by making a GET request to `http://lo
 - If the metrics endpoint returns null or an empty response, the response will be `200 OK` with the body "Healthy" (you can customize this behavior in the code).
 
 ## Example Usage in Kubernetes
-You can deploy this health checker as a sidecar container alongside your LLM inference server in a Kubernetes pod. Here's an example deployment configuration:
+Deploy this health checker as a sidecar container alongside your Hugging Face inference server. Configure the `inference-server` container's readiness probe to target the health checker's `/health` endpoint.
 
 ```yaml
 apiVersion: apps/v1
@@ -125,16 +131,9 @@ spec:
 
 In this configuration, the `inference-server` container's readiness probe will check the `/health` endpoint of the `llm-healthchecker` container to determine its readiness.
 
-## Customization
-- You can modify the `healthCheckHandler` function to implement more complex health check logic based on your specific requirements.
-- Consider adding more robust error handling and logging to the `extractMetricValue` function to provide better insights in case of unexpected metric formats or values.
-
-## Disclaimer
-This is a basic health checker implementation. For production environments, you might want to consider more advanced features such as:
-
-- Support for multiple metrics and thresholds
-- Integration with alerting systems to notify you of health issues
-- More sophisticated error handling and recovery mechanisms
+## Important Notes
+- In a real-world production scenario, you'd likely implement this queue depth monitoring directly within the inference server's code and expose a native health metric for Kubernetes to check
+- This implementation focuses on simulating capacity issues for demonstration purposes
 
 ## License
 MIT
