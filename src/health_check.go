@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -8,7 +10,57 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
+
+func keepAlive() {
+	// Get the app port from APP_PORT
+	appPortStr := os.Getenv("APP_PORT")
+	appPort, err := strconv.Atoi(appPortStr)
+	if err != nil || appPort == 0 {
+		appPort = 8080 // Fallback if not set or invalid
+	}
+
+	// Construct the inference server URL using appPort
+	inferenceServerURL := fmt.Sprintf("http://localhost:%d", appPort)
+
+	// Add "/generate" to construct the full URL
+	generateURL := inferenceServerURL + "/generate"
+
+	for {
+		// Construct the JSON payload
+		payload := map[string]interface{}{
+			"inputs": "What is a keep alive?",
+			"parameters": map[string]interface{}{
+				"max_new_tokens": 100,
+			},
+		}
+		jsonPayload, err := json.Marshal(payload)
+		if err != nil {
+			log.Println("Error marshalling JSON:", err)
+			return
+		}
+
+		// Make the HTTP POST request
+		resp, err := http.Post(generateURL, "application/json", bytes.NewBuffer(jsonPayload))
+		if err != nil {
+			log.Println("Error making keep-alive request:", err)
+			return
+		}
+		defer resp.Body.Close()
+
+		// Read and log the response (optional)
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Println("Error reading keep-alive response:", err)
+			return
+		}
+		log.Println("Keep-alive response:", string(body))
+
+		// Sleep for 30 minutes
+		time.Sleep(30 * time.Minute)
+	}
+}
 
 func main() {
 	metricsEndpoint := os.Getenv("METRICS_ENDPOINT")
@@ -26,6 +78,8 @@ func main() {
 	if err != nil || appPort == 0 {
 		appPort = 8081 // Fallback to default
 	}
+
+	go keepAlive()
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		healthCheckHandler(w, r, metricsEndpoint, queueDepthThreshold)

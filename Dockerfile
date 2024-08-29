@@ -3,7 +3,7 @@ FROM golang:1.22-alpine AS build
 
 WORKDIR /app
 
-COPY . ./
+COPY ./src ./
 
 RUN go build -v -o health_check
 
