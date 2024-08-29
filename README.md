@@ -134,6 +134,7 @@ In this configuration, the `inference-server` container's readiness probe will c
 ## Important Notes
 - In a real-world production scenario, you'd likely implement this queue depth monitoring directly within the inference server's code and expose a native health metric for Kubernetes to check
 - This implementation focuses on simulating capacity issues for demonstration purposes
+- Full Multi-Cluster Gateway demo is coming soon!
 
 ## License
 MIT
