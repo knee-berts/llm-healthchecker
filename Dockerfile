@@ -16,8 +16,9 @@ COPY --from=build /app/health_check .
 
 # Set default values for environment variables
 ENV METRICS_ENDPOINT="http://localhost:8080/metrics"
-ENV QUEUE_DEPTH_THRESHOLD=10
+ENV METRIC_THRESHOLD=10
 ENV APP_PORT=8081
+ENV METRIC_TO_CHECK="tgi_queue_size"
 
 # Expose the port the application will listen on
 EXPOSE $APP_PORT
