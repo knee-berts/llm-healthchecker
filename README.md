@@ -59,13 +59,6 @@ spec:
         examples.ai.gke.io/source: user-guide
     spec:
       containers:
-      - name: busybox 
-        image: radial/busyboxplus:curl
-        command: ['sh', '-c', 'while true; do date; sleep 3; done'] 
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "128Mi"
       - name: llm-healthcheck 
         image: us-docker.pkg.dev/fleet-dev-1/llm-healthcheck/llm-healthcheck-v0.0.9
         resources:
